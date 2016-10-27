@@ -1,5 +1,8 @@
 package eu.quizit.controller;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import eu.quizit.model.Model;
 import eu.quizit.view.View;
 
@@ -14,8 +17,17 @@ public class Controller {
     }
 
     public void launch() {
-        new PrefixViewController(view.getPrefixView(), model);
+        new PrefixViewController(model, view.getPrefixView(), this);
         view.launchRequest.publish();
+    }
+
+    public void showPartIdView() {
+        new PartIdViewController(model, view.getPartIdView(), this);
+        view.partIdViewShowRequest.publish();
+    }
+
+    public String createPartId(String partName) throws FileNotFoundException, IOException {
+        return model.createPartId(partName);
     }
 
 }

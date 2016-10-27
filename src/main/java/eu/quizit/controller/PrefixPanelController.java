@@ -7,12 +7,14 @@ import eu.quizit.view.PrefixPanel;
 
 public class PrefixPanelController {
 
-    private PrefixPanel prefixPanel;
     private Model model;
+    private PrefixPanel prefixPanel;
+    private Controller controller;
 
-    public PrefixPanelController(PrefixPanel prefixPanel, Model model) {
-        this.prefixPanel = prefixPanel;
+    public PrefixPanelController(Model model, PrefixPanel prefixPanel, Controller controller) {
         this.model = model;
+        this.prefixPanel = prefixPanel;
+        this.controller = controller;
         prefixPanel.savePrefixRequest.subscribe(prefix -> {
             onSavePrefixRequest(prefix);
         });
@@ -29,6 +31,7 @@ public class PrefixPanelController {
 
     private void onPrefixSaved() {
         prefixPanel.prefixSaved.publish();
+        controller.showPartIdView();
     }
 
     private void onSavePrefixRequestException(Exception e) {

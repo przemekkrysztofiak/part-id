@@ -7,30 +7,31 @@ import eu.quizit.view.PrefixView;
 
 public class PrefixViewController {
 
-    private PrefixView prefixView;
     private Model model;
+    private PrefixView prefixView;
+    private Controller controller;
 
-    public PrefixViewController(PrefixView prefixView, Model model) {
-        this.prefixView = prefixView;
+    public PrefixViewController(Model model, PrefixView prefixView, Controller controller) {
         this.model = model;
+        this.prefixView = prefixView;
+        this.controller = controller;
         prefixView.showRequest.subscribe(nothing -> {
             onShowRequest();
         });
-        new PrefixPanelController(prefixView.getPrefixPanel(), model);
+        new PrefixPanelController(model, prefixView.getPrefixPanel(), controller);
     }
 
     private void onShowRequest() {
-        if (!model.getPropertiesModel().propertiesFileExists()) {
-            prefixView.show.publish();
+        boolean prefixExists = false;
+        try {
+            prefixExists = model.getPropertiesModel().containsProperty("prefix");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (model.getPropertiesModel().propertiesFileExists() && prefixExists) {
+            controller.showPartIdView();
         } else {
-            try {
-                if (!model.getPropertiesModel().containsKey("prefix")) {
-                    prefixView.show.publish();
-                }
-            } catch (IOException e) {
-                //TODO handle exception
-                e.printStackTrace();
-            }
+            prefixView.show.publish();
         }
     }
 }

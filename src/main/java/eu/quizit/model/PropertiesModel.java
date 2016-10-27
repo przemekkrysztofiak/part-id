@@ -24,12 +24,12 @@ public class PropertiesModel {
         return propertiesFileExists;
     }
     
-    public boolean containsKey(String key)
+    public boolean containsProperty(String key)
             throws FileNotFoundException, IOException {
-        Properties properties = new Properties();
-        try (InputStream in = new FileInputStream(propertiesFile)) {
-            properties.load(in);
+        if (!propertiesFileExists()) {
+            createPropertiesFile();
         }
+        Properties properties = loadProperties();
         boolean containsKey = properties.containsKey(key);
         if (containsKey) {
             String value = properties.getProperty(key);
@@ -44,11 +44,19 @@ public class PropertiesModel {
         propertiesFile.createNewFile();
     }
 
+    public Properties loadProperties() throws IOException {
+        Properties properties = new Properties();
+        try (InputStream in = new FileInputStream(propertiesFile)) {
+            properties.load(in);
+        }
+        return properties;
+    }
+
     public void setProperty(String key, String value) throws IOException {
         if (!propertiesFileExists()) {
             createPropertiesFile();
         }
-        Properties properties = new Properties();
+        Properties properties = loadProperties();
         properties.setProperty(key, value);
 
         try (OutputStream out = new FileOutputStream(propertiesFile)) {
@@ -57,11 +65,14 @@ public class PropertiesModel {
     }
 
     public String getProperty(String key) throws FileNotFoundException, IOException {
-        Properties properties = new Properties();
-        try (InputStream in = new FileInputStream(propertiesFile)) {
-            properties.load(in);
+        Properties properties = loadProperties();
+        String property = properties.getProperty(key);
+        if (property == null) {
+            setProperty(key, "");
+            property = "";
         }
-        return properties.getProperty(key);
+        return property;
     }
+
 
 }
