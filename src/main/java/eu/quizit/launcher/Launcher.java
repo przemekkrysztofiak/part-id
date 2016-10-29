@@ -1,4 +1,4 @@
-package eu.quizit.main;
+package eu.quizit.launcher;
 
 import eu.quizit.controller.Controller;
 import eu.quizit.model.Model;
