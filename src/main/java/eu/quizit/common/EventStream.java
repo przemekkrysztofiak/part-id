@@ -4,27 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class EventStream<T> {
+public class EventStream<E> {
 
-    private List<Consumer<T>> events = new ArrayList<>();
+    private List<Consumer<E>> events = new ArrayList<>();
 
-    public void subscribe(Consumer<T> event) {
-        events.add(event);
+    public void subscribe(Consumer<E> eventConsumer) {
+        events.add(eventConsumer);
     }
 
-    public void unsubscribe(Consumer<T> event) {
-        events.remove(event);
-    }
-
-    public void publish(T t) {
-        events.forEach(event -> {
-            event.accept(t);
+    public void publish(E event) {
+        events.forEach(eventConsumer -> {
+            eventConsumer.accept(event);
         });
     }
 
     public void publish() {
-        events.forEach(event -> {
-            event.accept(null);
+        events.forEach(eventConsumer -> {
+            eventConsumer.accept(null);
         });
     }
 }

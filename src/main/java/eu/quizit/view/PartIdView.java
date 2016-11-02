@@ -6,6 +6,7 @@ import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
+import java.awt.geom.Point2D;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -18,10 +19,7 @@ import javafx.stage.StageStyle;
 
 public class PartIdView extends Stage {
 
-    public EventStream<Void> showRequest = new EventStream<>();
-    public EventStream<Double> setX = new EventStream<>();
-    public EventStream<Double> setY = new EventStream<>();
-    public EventStream<Void> show = new EventStream<>();
+    public EventStream<Point2D.Double> show = new EventStream<>();
 
     private PartIdPanel partIdPanel = new PartIdPanel();
 
@@ -30,24 +28,16 @@ public class PartIdView extends Stage {
     }
 
     private void initEvents() {
-        setX.subscribe(x -> {
-            onSetX(x);
-        });
-
-        setY.subscribe(y -> {
-            onSetY(y);
-        });
-
-        show.subscribe(nothing -> {
-            onShow();
-        });
-
+        show.subscribe(coordinates -> onShow(coordinates));
     }
 
-    private void onShow() {
+    private void onShow(Point2D.Double coordinates) {
+        setX(coordinates.getX());
+        setY(coordinates.getY());
         initTray();
         initStyle(StageStyle.UNDECORATED);
         setScene(new Scene(partIdPanel));
+        setAlwaysOnTop(true);
         show();
     }
 
@@ -71,12 +61,19 @@ public class PartIdView extends Stage {
         });
         popupMenu.add(closeMenuItem);
 
+        MenuItem centerMenuItem = new MenuItem("center");
+        centerMenuItem.addActionListener(event -> {
+            Platform.runLater(() -> {
+                centerOnScreen();
+                partIdPanel.saveCoordinatesRequest.publish(new Point2D.Double(getX(), getY()));
+            });
+        });
+        popupMenu.add(centerMenuItem);
+
         Image trayIconImage = null;
         try {
-            trayIconImage = ImageIO.read(
-                    getClass().getClassLoader().getResourceAsStream("cog-wheel-silhouette.png"));
+            trayIconImage = ImageIO.read(PartIdView.class.getClassLoader().getResourceAsStream("resources/cog-wheel-silhouette.png"));
         } catch (IOException e) {
-            // TODO handle exception
             e.printStackTrace();
         }
 
@@ -84,23 +81,10 @@ public class PartIdView extends Stage {
         try {
             tray.add(trayIcon);
         } catch (AWTException e) {
-            // TODO handle exception
             e.printStackTrace();
         }
-        
+
         Platform.setImplicitExit(false);
-    }
-
-    private void onSetY(Double y) {
-        if (y != null) {
-            setY(y);
-        }
-    }
-
-    private void onSetX(Double x) {
-        if (x != null) {
-            setX(x);
-        }
     }
 
     public PartIdPanel getPartIdPanel() {

@@ -8,6 +8,9 @@ public class PrefixView extends Stage {
 
     public EventStream<Void> showRequest = new EventStream<>();
     public EventStream<Void> show = new EventStream<>();
+
+    public EventStream<Exception> showAlert = new EventStream<>();
+    public EventStream<Void> showPartIdView = new EventStream<>();
     public EventStream<Void> close = new EventStream<>();
 
     private PrefixPanel prefixPanel = new PrefixPanel();
@@ -17,21 +20,17 @@ public class PrefixView extends Stage {
     }
 
     private void initEvents() {
-        prefixPanel.closePrefixViewRequest.subscribe(nothing -> {
-            close.publish();
-        });
+        show.subscribe(nothing -> onShow());
 
-        close.subscribe(nothing -> {
-            onClose();
-        });
-
-        show.subscribe(nothing -> {
-            onShow();
-        });
+        close.subscribe(nothing -> onClose());
+        prefixPanel.closePrefixView.subscribe(nothing -> close.publish());
+        prefixPanel.showAlert.subscribe(e -> showAlert.publish(e));
+        prefixPanel.showPartIdView.subscribe(nothing -> showPartIdView.publish());
     }
 
     private void onShow() {
-        setScene(new Scene(prefixPanel));
+        Scene scene = new Scene(prefixPanel);
+        setScene(scene);
         show();
     }
 

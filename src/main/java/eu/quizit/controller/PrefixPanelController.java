@@ -2,39 +2,32 @@ package eu.quizit.controller;
 
 import java.io.IOException;
 
+import eu.quizit.common.PartIdProperty;
 import eu.quizit.model.Model;
 import eu.quizit.view.PrefixPanel;
 
 public class PrefixPanelController {
 
-    private Model model;
-    private PrefixPanel prefixPanel;
-    private Controller controller;
+    private final Model model;
+    private final PrefixPanel prefixPanel;
 
-    public PrefixPanelController(Model model, PrefixPanel prefixPanel, Controller controller) {
+    public PrefixPanelController(Model model, PrefixPanel prefixPanel) {
         this.model = model;
         this.prefixPanel = prefixPanel;
-        this.controller = controller;
-        prefixPanel.savePrefixRequest.subscribe(prefix -> {
-            onSavePrefixRequest(prefix);
-        });
+        initEvents();
     }
 
-    private void onSavePrefixRequest(String prefix) {
+    private void initEvents() {
+        prefixPanel.savePrefix.subscribe(prefix -> onSavePrefix(prefix));
+    }
+
+    private void onSavePrefix(String prefix) {
         try {
-            model.getPropertiesModel().setProperty("prefix", prefix);
-            onPrefixSaved();
+            model.setProperty(PartIdProperty.PREFIX.toString(), prefix);
+            prefixPanel.closePrefixView.publish();
+
         } catch (IOException e) {
-            onSavePrefixRequestException(e);
+            prefixPanel.showAlert.publish(e);
         }
-    }
-
-    private void onPrefixSaved() {
-        prefixPanel.prefixSaved.publish();
-        controller.showPartIdView();
-    }
-
-    private void onSavePrefixRequestException(Exception e) {
-        prefixPanel.savePrefixRequestException.publish(e);
     }
 }

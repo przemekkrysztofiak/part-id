@@ -14,8 +14,7 @@ public class Launcher extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Controller controller = new Controller(new View(), new Model());
-        controller.launch();
+        new Controller(new View(), new Model()).launch();
     }
 
 }
